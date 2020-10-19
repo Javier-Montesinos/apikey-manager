@@ -12,7 +12,9 @@ public interface ApiKeyService {
 		
 	public boolean authenticateKey(String apiScope, String userName, String keyUuid);
 	
-	public void revokeKey(String userName);
+	public void enableKey(String userName);
+	
+	public void disableKey(String userName);
 
 	public List<ApiKey> getKeys();
 	

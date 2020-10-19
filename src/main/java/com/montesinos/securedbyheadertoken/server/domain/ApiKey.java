@@ -1,12 +1,38 @@
 package com.montesinos.securedbyheadertoken.server.domain;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+@Entity
+@Table(name="apikeys")
 public class ApiKey {
 	
-	private String username;	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name="id")
+	private int id;
+	
+	@Column(name="user_name")
+	private String username;
+	
+	@Transient	
 	private String uuid;
+	
+	@Column(name="salt")
 	private String salt;
+	
+	@Column(name="hashed_uuid")
 	private String hashedUuid;
+	
+	@Column(name="api_scope")
 	private String apiScope;
+	
+	@Column(name="active")
 	private boolean active;
 	
 	/**
@@ -46,7 +72,13 @@ public class ApiKey {
 		this.active = active;
 	}
 	
-	
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
 
 	public String getUuid() {
 		return uuid;
@@ -98,7 +130,7 @@ public class ApiKey {
 
 	@Override
 	public String toString() {
-		return "ApiKey [username=" + username + ", uuid=" + uuid + ", salt=" + salt.toString() + ", hashedUuid="
+		return "ApiKey [id=" + id + ", username=" + username + ", uuid=" + uuid + ", salt=" + salt.toString() + ", hashedUuid="
 				+ hashedUuid + ", active=" + active + "]";
 	}
 	

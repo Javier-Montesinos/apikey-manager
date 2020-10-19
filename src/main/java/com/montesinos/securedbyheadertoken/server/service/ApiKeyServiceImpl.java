@@ -17,17 +17,17 @@ import javax.xml.bind.DatatypeConverter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.montesinos.securedbyheadertoken.server.dao.ApiKeyRepository;
 import com.montesinos.securedbyheadertoken.server.domain.ApiKey;
 
 @Service
 public class ApiKeyServiceImpl implements ApiKeyService {
 
 	private final static Logger LOG = LoggerFactory.getLogger(ApiKeyServiceImpl.class);
-
-	private Map<String, ApiKey> keys;
 	
 	@Value("${apikey.test.enable}")
 	private boolean apiKeyTestEnable;
@@ -41,11 +41,13 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 	@Value("${apikey.test.apiscope}")
 	private String apiKeyTestApiScope;
 	
+	@Autowired
+	private ApiKeyRepository apiKeyRepository;
+	
 	@PostConstruct
-	private void loadData() {
-		keys = new HashMap<String, ApiKey>();
-		
-		if(apiKeyTestEnable) {
+	private void loadData() {		
+		List<ApiKey> apis = this.apiKeyRepository.findByUsername(this.apiKeyTestUsername);
+		if(apiKeyTestEnable && apis.size() == 0) {
 			newKey(this.apiKeyTestApiScope, this.apiKeyTestUsername, this.apiKeyTestUuid);
 		}
 	}
@@ -72,8 +74,9 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 		LOG.info("Key generated: {}" + key.toString());
 		
 		key.setUuid(null);
-		key.setApiScope(apiScope);
-		this.keys.put(userName, key);
+		key.setApiScope(apiScope);		
+		
+		this.apiKeyRepository.save(key);
 	
 		return key;
 	}
@@ -89,28 +92,31 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 	@Override
 	public boolean authenticateKey(String apiScope, String userName, String keyUuid) {
 		boolean retValue = false;
-		if(this.keys.containsKey(userName)) {
-			ApiKey keyBD = this.keys.get(userName);
-
-			MessageDigest md = null;
-			byte[] hashedPassword = null;
-			try {
-				md = MessageDigest.getInstance("SHA-256");				
-				md.update(Base64.getDecoder().decode(keyBD.getSalt().getBytes("UTF-8")));
-				
-				hashedPassword = md.digest(keyUuid.getBytes(StandardCharsets.UTF_8));
-				
-				if(keyBD.getApiScope().equals(apiScope) 
-						&& keyBD.getHashedUuid().equals(byteArrayToHexadecimal(hashedPassword))) {
-					retValue = true;
-				} 
-				
-			} catch (NoSuchAlgorithmException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		List<ApiKey> apikey = this.apiKeyRepository.findByUsername(userName);
+		
+		if(apikey!= null && apikey.size() == 1) {
+			ApiKey keyBD = apikey.get(0);
+			if(keyBD.isActive() && apiScope != null && apiScope.equals(keyBD.getApiScope())) {
+				MessageDigest md = null;
+				byte[] hashedPassword = null;
+				try {
+					md = MessageDigest.getInstance("SHA-256");				
+					md.update(Base64.getDecoder().decode(keyBD.getSalt().getBytes("UTF-8")));
+					
+					hashedPassword = md.digest(keyUuid.getBytes(StandardCharsets.UTF_8));
+					
+					if(keyBD.getApiScope().equals(apiScope) 
+							&& keyBD.getHashedUuid().equals(byteArrayToHexadecimal(hashedPassword))) {
+						retValue = true;
+					} 
+					
+				} catch (NoSuchAlgorithmException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 		
@@ -118,24 +124,39 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 	}
 
 	@Override
-	public void revokeKey(String userName) {
-		if(this.keys.containsKey(userName)) {
-			ApiKey keyBD = this.keys.get(userName);
+	public void disableKey(String userName) {
+		List<ApiKey> apikey = this.apiKeyRepository.findByUsername(userName);
+		
+		if(apikey != null && apikey.size() == 1) {
+			ApiKey keyBD = apikey.get(0);
 			
 			keyBD.setActive(false);
 			
-			this.keys.replace(userName, keyBD);
+			this.apiKeyRepository.save(keyBD);
+		}		
+	}
+
+	@Override
+	public void enableKey(String userName) {
+		List<ApiKey> apikey = this.apiKeyRepository.findByUsername(userName);
+		
+		if(apikey != null && apikey.size() == 1) {
+			ApiKey keyBD = apikey.get(0);
+			
+			keyBD.setActive(true);
+			
+			this.apiKeyRepository.save(keyBD);
 		}		
 	}
 
 	@Override
 	public List<ApiKey> getKeys() {
-		return new ArrayList<ApiKey>(this.keys.values());
+		return this.apiKeyRepository.findAll();
 	}
 	
 	@Override
 	public ApiKey getKeyByUserName(String userName) {
-		return this.keys.get(userName);		
+		return this.apiKeyRepository.findByUsername(userName).get(0);		
 	}
 	
 	private String byteArrayToHexadecimal(byte[] bytes) {

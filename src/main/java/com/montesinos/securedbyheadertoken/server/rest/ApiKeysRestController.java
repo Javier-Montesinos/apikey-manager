@@ -12,6 +12,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.montesinos.securedbyheadertoken.server.domain.ApiKey;
 import com.montesinos.securedbyheadertoken.server.service.ApiKeyService;
 
+/**
+ * Clase para el manejo de key para apis rest
+ * 
+ * Colección Postman de pruebas: https://www.getpostman.com/collections/9b5b8b84c74a8369acbf
+ *  
+ * @author javiermontesinos
+ *
+ */
 @RestController
 public class ApiKeysRestController {
 	
@@ -33,11 +41,24 @@ public class ApiKeysRestController {
 		return this.apiKeyService.getKeyByUserName(userName);
 	}
 	
-	@PutMapping("/keys/{keyUuid}")
-	public String revokeKey(@PathVariable String keyUuid){
-		this.apiKeyService.revokeKey(keyUuid);
+	@GetMapping("/keys/auth/{apiScope}/{userName}/{keyUuid}")
+	public String authenticate(@PathVariable String apiScope, 
+			@PathVariable String userName, @PathVariable String keyUuid){
+		return String.valueOf(this.apiKeyService.authenticateKey(apiScope, userName, keyUuid));
+	}
+	
+	@PutMapping("/keys/{userName}/disable")
+	public String diableKey(@PathVariable String userName){
+		this.apiKeyService.disableKey(userName);
 		
-		return "Apikey revoked with uuid: " + keyUuid; 
+		return "Apikey disabled with uuid: " + userName; 
+	}
+	
+	@PutMapping("/keys/{userName}/enable")
+	public String enableKey(@PathVariable String userName){
+		this.apiKeyService.enableKey(userName);
+		
+		return "Apikey enabled with uuid: " + userName; 
 	}
 	
 	
