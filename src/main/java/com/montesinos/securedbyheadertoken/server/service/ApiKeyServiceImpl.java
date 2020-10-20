@@ -41,6 +41,15 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 	@Value("${apikey.test.apiscope}")
 	private String apiKeyTestApiScope;
 	
+	@Value("${apikey.test2.username}")
+	private String apiKeyTestUsername2;
+	
+	@Value("${apikey.test2.uuid}")
+	private String apiKeyTestUuid2;
+	
+	@Value("${apikey.test2.apiscope}")
+	private String apiKeyTestApiScope2;
+	
 	@Autowired
 	private ApiKeyRepository apiKeyRepository;
 	
@@ -49,6 +58,11 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 		List<ApiKey> apis = this.apiKeyRepository.findByUsername(this.apiKeyTestUsername);
 		if(apiKeyTestEnable && apis.size() == 0) {
 			newKey(this.apiKeyTestApiScope, this.apiKeyTestUsername, this.apiKeyTestUuid);
+		}
+		
+		List<ApiKey> apis2 = this.apiKeyRepository.findByUsername(this.apiKeyTestUsername2);
+		if(apiKeyTestEnable && apis2.size() == 0) {
+			newKey(this.apiKeyTestApiScope2, this.apiKeyTestUsername2, this.apiKeyTestUuid2);
 		}
 	}
 	
