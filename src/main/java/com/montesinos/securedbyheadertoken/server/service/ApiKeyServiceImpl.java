@@ -1,15 +1,11 @@
 package com.montesinos.securedbyheadertoken.server.service;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
@@ -25,9 +21,7 @@ import com.montesinos.securedbyheadertoken.server.dao.ApiKeyRepository;
 import com.montesinos.securedbyheadertoken.server.domain.ApiKey;
 
 @Service
-public class ApiKeyServiceImpl implements ApiKeyService {
-
-	private final static Logger LOG = LoggerFactory.getLogger(ApiKeyServiceImpl.class);
+public class ApiKeyServiceImpl implements ApiKeyService {	
 	
 	@Value("${apikey.test.enable}")
 	private boolean apiKeyTestEnable;
@@ -53,15 +47,17 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 	@Autowired
 	private ApiKeyRepository apiKeyRepository;
 	
+	private static final Logger LOG = LoggerFactory.getLogger(ApiKeyServiceImpl.class);
+	
 	@PostConstruct
 	private void loadData() {		
 		List<ApiKey> apis = this.apiKeyRepository.findByUsername(this.apiKeyTestUsername);
-		if(apiKeyTestEnable && apis.size() == 0) {
+		if(apiKeyTestEnable && apis.isEmpty()) {
 			newKey(this.apiKeyTestApiScope, this.apiKeyTestUsername, this.apiKeyTestUuid);
 		}
 		
 		List<ApiKey> apis2 = this.apiKeyRepository.findByUsername(this.apiKeyTestUsername2);
-		if(apiKeyTestEnable && apis2.size() == 0) {
+		if(apiKeyTestEnable && apis2.isEmpty()) {
 			newKey(this.apiKeyTestApiScope2, this.apiKeyTestUsername2, this.apiKeyTestUuid2);
 		}
 	}
@@ -80,12 +76,11 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 			
 			hashedPassword = md.digest(uuid.getBytes(StandardCharsets.UTF_8));			
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 						
 		ApiKey key = new ApiKey(userName, uuid, DatatypeConverter.printBase64Binary(salt), byteArrayToHexadecimal(hashedPassword), true);
-		LOG.info("Key generated: {}" + key.toString());
+		LOG.info("Key generated: {}", key);
 		
 		key.setUuid(null);
 		key.setApiScope(apiScope);		
@@ -115,7 +110,7 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 				byte[] hashedPassword = null;
 				try {
 					md = MessageDigest.getInstance("SHA-256");				
-					md.update(Base64.getDecoder().decode(keyBD.getSalt().getBytes("UTF-8")));
+					md.update(Base64.getDecoder().decode(keyBD.getSalt().getBytes(StandardCharsets.UTF_8)));
 					
 					hashedPassword = md.digest(keyUuid.getBytes(StandardCharsets.UTF_8));
 					
@@ -124,13 +119,9 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 						retValue = true;
 					} 
 					
-				} catch (NoSuchAlgorithmException e) {
-					// TODO Auto-generated catch block
+				} catch (NoSuchAlgorithmException e) {					
 					e.printStackTrace();
-				} catch (UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				} 				
 			}
 		}
 		
@@ -173,11 +164,13 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 		return this.apiKeyRepository.findByUsername(userName).get(0);		
 	}
 	
-	private String byteArrayToHexadecimal(byte[] bytes) {
+	private String byteArrayToHexadecimal(byte[] bytes) {		
 		StringBuilder sb = new StringBuilder();
-		for(int i=0; i< bytes.length ;i++){
-	        sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
-	    }
+		if(bytes != null) {
+			for(int i=0; i< bytes.length ;i++){
+		        sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+		    }
+		}
 		return sb.toString();
 	}
 

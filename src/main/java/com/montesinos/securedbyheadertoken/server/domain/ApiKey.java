@@ -130,7 +130,7 @@ public class ApiKey {
 
 	@Override
 	public String toString() {
-		return "ApiKey [id=" + id + ", username=" + username + ", uuid=" + uuid + ", salt=" + salt.toString() + ", hashedUuid="
+		return "ApiKey [id=" + id + ", username=" + username + ", uuid=" + uuid + ", salt=" + salt + ", hashedUuid="
 				+ hashedUuid + ", active=" + active + "]";
 	}
 	

@@ -17,9 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import com.montesinos.securedbyheadertoken.server.service.ApiKeyServiceImpl;
 
@@ -27,23 +25,23 @@ import com.montesinos.securedbyheadertoken.server.service.ApiKeyServiceImpl;
 @Order(1)
 public class CheckTokenHeaderFilter implements Filter {
 
-	private final static Logger LOG = LoggerFactory.getLogger(CheckTokenHeaderFilter.class);
-	
-	@Value("${apikey.user.name}")
-	private final String apiKeyUserName = null;
-	
-	@Value("${apikey.name}")
-	private final String apiKeyName = null;
-	
-	@Value("${apikey.scope}")
-	private final String apiScope = null;	
-
 	@Autowired
 	private ApiKeyServiceImpl apiKeyServiceImpl;
 	
+	@Value("${apikey.user.name}")
+	private static final String API_KEY_USER_NAME = null;
+	
+	@Value("${apikey.name}")
+	private static final String API_KEY_NAME = null;
+	
+	@Value("${apikey.scope}")
+	private static final String API_SCOPE = null;	
+
+	private static final Logger LOG = LoggerFactory.getLogger(CheckTokenHeaderFilter.class);
+	
 	@Override
 	public void init(final FilterConfig filterConfig) throws ServletException {
-		LOG.info("Initializing filter :{}", this);						 
+		LOG.info("Initializing filter: {}", this);						 
 	}	
 	
 	@Override
@@ -53,14 +51,14 @@ public class CheckTokenHeaderFilter implements Filter {
 		HttpServletRequest req = (HttpServletRequest) request;
 		HttpServletResponse res = (HttpServletResponse) response;
 				
-		String apiKey = req.getHeader(this.apiKeyName);
-		String userName = req.getHeader(this.apiKeyUserName);
+		String apiKey = req.getHeader(API_KEY_NAME);
+		String userName = req.getHeader(API_KEY_USER_NAME);
 		
 		LOG.info("req : {}, user name: {}, api key value: {}", req.getRequestURI(), userName, apiKey);
 		
-		// TODO implementar con seguridad de spring
+		// se debe implementar con seguridad de spring para evitar esto
 		if(req.getServletPath().startsWith("/keys/auth/")) {
-			if(this.apiKeyServiceImpl.authenticateKey(this.apiScope, userName, apiKey) == true) {
+			if(this.apiKeyServiceImpl.authenticateKey(API_SCOPE, userName, apiKey)) {
 				chain.doFilter(request, response);
 				
 			} else {		
@@ -74,7 +72,7 @@ public class CheckTokenHeaderFilter implements Filter {
 	
 	@Override
 	public void destroy() {
-		LOG.warn("Destructing filter :{}", this);
+		LOG.warn("Destructing filter: {}", this);
 	}
 		
 }
