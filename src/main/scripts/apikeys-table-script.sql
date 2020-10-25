@@ -1,7 +1,6 @@
 CREATE TABLE restapikeys.apikeys (
 	id INTEGER auto_increment NOT NULL,
-	user_name varchar(100) NOT NULL,	
-	salt varchar(50) NOT NULL,
+	user_name varchar(100) NOT NULL,
 	hashed_uuid varchar(150) NOT NULL,
 	api_scope varchar(100) NOT NULL,
 	active BOOL DEFAULT true NOT NULL,

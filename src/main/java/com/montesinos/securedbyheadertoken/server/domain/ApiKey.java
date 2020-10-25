@@ -23,9 +23,6 @@ public class ApiKey {
 	@Transient	
 	private String uuid;
 	
-	@Column(name="salt")
-	private String salt;
-	
 	@Column(name="hashed_uuid")
 	private String hashedUuid;
 	
@@ -44,14 +41,12 @@ public class ApiKey {
 
 	/**
 	 * @param uuid
-	 * @param salt
 	 * @param hashedUuid
 	 * @param active
 	 */
-	public ApiKey(String uuid, String salt, String hashedUuid, boolean active) {
+	public ApiKey(String uuid, String hashedUuid, boolean active) {
 		super();
 		this.uuid = uuid;
-		this.salt = salt;
 		this.hashedUuid = hashedUuid;
 		this.active = active;
 	}
@@ -59,15 +54,13 @@ public class ApiKey {
 	/**
 	 * @param username
 	 * @param uuid
-	 * @param salt
 	 * @param hashedUuid
 	 * @param active
 	 */
-	public ApiKey(String username, String uuid, String salt, String hashedUuid, boolean active) {
+	public ApiKey(String username, String uuid, String hashedUuid, boolean active) {
 		super();
 		this.username = username;
 		this.uuid = uuid;
-		this.salt = salt;
 		this.hashedUuid = hashedUuid;
 		this.active = active;
 	}
@@ -86,14 +79,6 @@ public class ApiKey {
 
 	public void setUuid(String uuid) {
 		this.uuid = uuid;
-	}
-
-	public String getSalt() {
-		return salt;
-	}
-
-	public void setSalt(String salt) {
-		this.salt = salt;
 	}
 
 	public String getHashedUuid() {
@@ -130,7 +115,7 @@ public class ApiKey {
 
 	@Override
 	public String toString() {
-		return "ApiKey [id=" + id + ", username=" + username + ", uuid=" + uuid + ", salt=" + salt + ", hashedUuid="
+		return "ApiKey [id=" + id + ", username=" + username + ", uuid=" + uuid + ", hashedUuid="
 				+ hashedUuid + ", active=" + active + "]";
 	}
 	

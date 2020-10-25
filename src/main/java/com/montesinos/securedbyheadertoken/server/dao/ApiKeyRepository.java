@@ -9,5 +9,8 @@ import com.montesinos.securedbyheadertoken.server.domain.ApiKey;
 public interface ApiKeyRepository extends JpaRepository<ApiKey, String> {
 
 	List<ApiKey> findByUsername(String username);
+	
+	List<ApiKey> findByUsernameAndApiScopeAndActive(String username, String apiScope, boolean active);
+	
 					
 }

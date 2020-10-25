@@ -1,20 +1,15 @@
 package com.montesinos.securedbyheadertoken.server.service;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
-import javax.xml.bind.DatatypeConverter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.montesinos.securedbyheadertoken.server.dao.ApiKeyRepository;
@@ -47,6 +42,9 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 	@Autowired
 	private ApiKeyRepository apiKeyRepository;
 	
+	@Autowired
+	private BCryptPasswordEncoder bcryptPasswordEncoder;
+	
 	private static final Logger LOG = LoggerFactory.getLogger(ApiKeyServiceImpl.class);
 	
 	@PostConstruct
@@ -63,23 +61,8 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 	}
 	
 	public ApiKey newKey(String apiScope, String userName, String uuid) {
-		SecureRandom random = null;
-		MessageDigest md = null;
-		byte[] hashedPassword = null;
-		byte[] salt = new byte[16];
-		try {
-			random = SecureRandom.getInstance("SHA1PRNG");			
-			random.nextBytes(salt);
-			
-			md = MessageDigest.getInstance("SHA-256");
-			md.update(salt);
-			
-			hashedPassword = md.digest(uuid.getBytes(StandardCharsets.UTF_8));			
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
-						
-		ApiKey key = new ApiKey(userName, uuid, DatatypeConverter.printBase64Binary(salt), byteArrayToHexadecimal(hashedPassword), true);
+		String hashedPwd = bcryptPasswordEncoder.encode(uuid);
+		ApiKey key = new ApiKey(userName, uuid, hashedPwd, true);
 		LOG.info("Key generated: {}", key);
 		
 		key.setUuid(null);
@@ -101,27 +84,12 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 	@Override
 	public boolean authenticateKey(String apiScope, String userName, String keyUuid) {
 		boolean retValue = false;
-		List<ApiKey> apikey = this.apiKeyRepository.findByUsername(userName);
+		List<ApiKey> apikey = this.apiKeyRepository.findByUsernameAndApiScopeAndActive(userName, apiScope, true);
 		
 		if(apikey!= null && apikey.size() == 1) {
 			ApiKey keyBD = apikey.get(0);
-			if(keyBD.isActive() && apiScope != null && apiScope.equals(keyBD.getApiScope())) {
-				MessageDigest md = null;
-				byte[] hashedPassword = null;
-				try {
-					md = MessageDigest.getInstance("SHA-256");				
-					md.update(Base64.getDecoder().decode(keyBD.getSalt().getBytes(StandardCharsets.UTF_8)));
-					
-					hashedPassword = md.digest(keyUuid.getBytes(StandardCharsets.UTF_8));
-					
-					if(keyBD.getApiScope().equals(apiScope) 
-							&& keyBD.getHashedUuid().equals(byteArrayToHexadecimal(hashedPassword))) {
-						retValue = true;
-					} 
-					
-				} catch (NoSuchAlgorithmException e) {					
-					e.printStackTrace();
-				} 				
+			if(bcryptPasswordEncoder.matches(keyUuid, keyBD.getHashedUuid())){
+				retValue = true;
 			}
 		}
 		
@@ -162,16 +130,6 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 	@Override
 	public ApiKey getKeyByUserName(String userName) {
 		return this.apiKeyRepository.findByUsername(userName).get(0);		
-	}
-	
-	private String byteArrayToHexadecimal(byte[] bytes) {		
-		StringBuilder sb = new StringBuilder();
-		if(bytes != null) {
-			for(int i=0; i< bytes.length ;i++){
-		        sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
-		    }
-		}
-		return sb.toString();
 	}
 
 }

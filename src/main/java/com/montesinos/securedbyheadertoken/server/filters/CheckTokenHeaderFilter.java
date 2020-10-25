@@ -29,13 +29,13 @@ public class CheckTokenHeaderFilter implements Filter {
 	private ApiKeyServiceImpl apiKeyServiceImpl;
 	
 	@Value("${apikey.user.name}")
-	private static final String API_KEY_USER_NAME = null;
+	private String apiKeyUserName = null;
 	
 	@Value("${apikey.name}")
-	private static final String API_KEY_NAME = null;
+	private String apiKeyName = null;
 	
 	@Value("${apikey.scope}")
-	private static final String API_SCOPE = null;	
+	private String apiScope = null;	
 
 	private static final Logger LOG = LoggerFactory.getLogger(CheckTokenHeaderFilter.class);
 	
@@ -51,14 +51,14 @@ public class CheckTokenHeaderFilter implements Filter {
 		HttpServletRequest req = (HttpServletRequest) request;
 		HttpServletResponse res = (HttpServletResponse) response;
 				
-		String apiKey = req.getHeader(API_KEY_NAME);
-		String userName = req.getHeader(API_KEY_USER_NAME);
+		String apiKey = req.getHeader(apiKeyName);
+		String userName = req.getHeader(apiKeyUserName);
 		
 		LOG.info("req : {}, user name: {}, api key value: {}", req.getRequestURI(), userName, apiKey);
 		
 		// se debe implementar con seguridad de spring para evitar esto
 		if(req.getServletPath().startsWith("/keys/auth/")) {
-			if(this.apiKeyServiceImpl.authenticateKey(API_SCOPE, userName, apiKey)) {
+			if(this.apiKeyServiceImpl.authenticateKey(apiScope, userName, apiKey)) {
 				chain.doFilter(request, response);
 				
 			} else {		
