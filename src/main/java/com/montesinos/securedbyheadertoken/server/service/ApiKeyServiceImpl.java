@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.montesinos.securedbyheadertoken.server.dao.ApiKeyRepository;
 import com.montesinos.securedbyheadertoken.server.domain.ApiKey;
+import com.montesinos.securedbyheadertoken.server.rest.ApiKeyNotFoundException;
 
 @Service
 public class ApiKeyServiceImpl implements ApiKeyService {	
@@ -91,6 +92,8 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 			if(bcryptPasswordEncoder.matches(keyUuid, keyBD.getHashedUuid())){
 				retValue = true;
 			}
+		} else {
+			throw new ApiKeyNotFoundException("Api Key not found");
 		}
 		
 		return retValue;
@@ -106,6 +109,8 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 			keyBD.setActive(false);
 			
 			this.apiKeyRepository.save(keyBD);
+		} else {
+			throw new ApiKeyNotFoundException("Api Key not found");
 		}		
 	}
 
@@ -119,6 +124,8 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 			keyBD.setActive(true);
 			
 			this.apiKeyRepository.save(keyBD);
+		} else {
+			throw new ApiKeyNotFoundException("Api Key not found");
 		}		
 	}
 
@@ -129,7 +136,13 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 	
 	@Override
 	public ApiKey getKeyByUserName(String userName) {
-		return this.apiKeyRepository.findByUsername(userName).get(0);		
+		List<ApiKey> apikey = this.apiKeyRepository.findByUsername(userName);
+		
+		if(apikey != null && apikey.size() == 1) {
+			return apikey.get(0);
+		} else {
+			throw new ApiKeyNotFoundException("Api Key not found");
+		}
 	}
 
 }

@@ -21,7 +21,7 @@ import com.montesinos.securedbyheadertoken.server.service.ApiKeyService;
  *
  */
 @RestController
-public class ApiKeysRestController {
+public class ApiKeyRestController {
 	
 	@Autowired
 	private ApiKeyService apiKeyService;

@@ -23,7 +23,7 @@ import com.montesinos.securedbyheadertoken.server.service.ApiKeyServiceImpl;
 
 @Component
 @Order(1)
-public class CheckTokenHeaderFilter implements Filter {
+public class CheckApiKeyHeaderFilter implements Filter {
 
 	@Autowired
 	private ApiKeyServiceImpl apiKeyServiceImpl;
@@ -37,7 +37,7 @@ public class CheckTokenHeaderFilter implements Filter {
 	@Value("${apikey.scope}")
 	private String apiScope = null;	
 
-	private static final Logger LOG = LoggerFactory.getLogger(CheckTokenHeaderFilter.class);
+	private static final Logger LOG = LoggerFactory.getLogger(CheckApiKeyHeaderFilter.class);
 	
 	@Override
 	public void init(final FilterConfig filterConfig) throws ServletException {
