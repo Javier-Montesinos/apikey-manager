@@ -25,7 +25,7 @@ RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 
 # PUERTO QUE EXPONEMOS
-EXPOSE 8080
+EXPOSE 8080 5050
 
 ARG DEPENDENCY=/workspace/app/target/dependency
 COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
@@ -33,7 +33,7 @@ COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
 COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
 
 # se añade información para hacer debug
-ENTRYPOINT ["java", "-noverify", "-XX:TieredStopAtLevel=1", "-cp","app:app/lib/*","-Dspring.main.lazy-initialization=true","com.montesinos.securedbyheadertoken.server.RestApiSecuredByHeaderApiKeyKeysManagerApplication"]
+ENTRYPOINT ["java", "-noverify", "-XX:TieredStopAtLevel=1", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005", "-cp","app:app/lib/*","-Dspring.main.lazy-initialization=true","com.montesinos.securedbyheadertoken.server.RestApiSecuredByHeaderApiKeyKeysManagerApplication"]
 
 # ENTRYPOINT 
 # ["java", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap", 

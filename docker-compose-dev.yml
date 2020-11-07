@@ -5,13 +5,14 @@ version: '3.3'
 # Define services
 services:
   # App backend service
-  api:
+  api-dev:
     # Configuration for building the docker image for the backend service
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-dev
     ports:
       - "8080:8080" # Forward the exposed port 8080 on the container to port 8080 on the host machine
+      - "5005:5005" # port for debuging
     # restart: unless-stopped
     depends_on: 
       - db # This service depends on mysql. Start that first.
