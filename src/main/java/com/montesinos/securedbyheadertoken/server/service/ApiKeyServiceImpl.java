@@ -1,6 +1,7 @@
 package com.montesinos.securedbyheadertoken.server.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
@@ -50,13 +51,13 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 	
 	@PostConstruct
 	private void loadData() {		
-		List<ApiKey> apis = this.apiKeyRepository.findByUsername(this.apiKeyTestUsername);
-		if(apiKeyTestEnable && apis.isEmpty()) {
+		Optional<ApiKey> apis = this.apiKeyRepository.findByUsername(this.apiKeyTestUsername);
+		if(apiKeyTestEnable && !apis.isPresent()) {
 			newKey(this.apiKeyTestApiScope, this.apiKeyTestUsername, this.apiKeyTestUuid);
 		}
 		
-		List<ApiKey> apis2 = this.apiKeyRepository.findByUsername(this.apiKeyTestUsername2);
-		if(apiKeyTestEnable && apis2.isEmpty()) {
+		Optional<ApiKey> apis2 = this.apiKeyRepository.findByUsername(this.apiKeyTestUsername2);
+		if(apiKeyTestEnable && !apis2.isPresent()) {
 			newKey(this.apiKeyTestApiScope2, this.apiKeyTestUsername2, this.apiKeyTestUuid2);
 		}
 	}
@@ -85,10 +86,10 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 	@Override
 	public boolean authenticateKey(String apiScope, String userName, String keyUuid) {
 		boolean retValue = false;
-		List<ApiKey> apikey = this.apiKeyRepository.findByUsernameAndApiScopeAndActive(userName, apiScope, true);
+		Optional<ApiKey> apikey = this.apiKeyRepository.findByUsernameAndApiScopeAndActive(userName, apiScope, true);
 		
-		if(apikey!= null && apikey.size() == 1) {
-			ApiKey keyBD = apikey.get(0);
+		if(apikey.isPresent()) {
+			ApiKey keyBD = apikey.get();
 			if(bcryptPasswordEncoder.matches(keyUuid, keyBD.getHashedUuid())){
 				retValue = true;
 			}
@@ -101,11 +102,10 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 
 	@Override
 	public void disableKey(String userName) {
-		List<ApiKey> apikey = this.apiKeyRepository.findByUsername(userName);
+		Optional<ApiKey> apikey = this.apiKeyRepository.findByUsername(userName);
 		
-		if(apikey != null && apikey.size() == 1) {
-			ApiKey keyBD = apikey.get(0);
-			
+		if(apikey.isPresent()) {
+			ApiKey keyBD = apikey.get();		
 			keyBD.setActive(false);
 			
 			this.apiKeyRepository.save(keyBD);
@@ -116,10 +116,10 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 
 	@Override
 	public void enableKey(String userName) {
-		List<ApiKey> apikey = this.apiKeyRepository.findByUsername(userName);
+		Optional<ApiKey> apikey = this.apiKeyRepository.findByUsername(userName);
 		
-		if(apikey != null && apikey.size() == 1) {
-			ApiKey keyBD = apikey.get(0);
+		if(apikey.isPresent()) {
+			ApiKey keyBD = apikey.get();
 			
 			keyBD.setActive(true);
 			
@@ -136,10 +136,10 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 	
 	@Override
 	public ApiKey getKeyByUserName(String userName) {
-		List<ApiKey> apikey = this.apiKeyRepository.findByUsername(userName);
+		Optional<ApiKey> apikey = this.apiKeyRepository.findByUsername(userName);
 		
-		if(apikey != null && apikey.size() == 1) {
-			return apikey.get(0);
+		if(apikey.isPresent()) {
+			return apikey.get();
 		} else {
 			throw new ApiKeyNotFoundException("Api Key not found");
 		}
