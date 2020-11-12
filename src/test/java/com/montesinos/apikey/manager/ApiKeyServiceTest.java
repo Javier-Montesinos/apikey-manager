@@ -125,8 +125,7 @@ public class ApiKeyServiceTest {
     @Order(60)
     @DisplayName("Test disable api key")
     public void testDisableApiKey() {
-    	doReturn(Optional.of(apiKey)).when(apiKeyRepository).findByUsername(apiKey.getUsername());
-    	doReturn(Optional.of(apiKey)).when(apiKeyRepository).findByUsernameAndApiScopeAndActive(apiKey.getUsername(), apiKey.getApiScope(), true);
+    	doReturn(Optional.of(apiKey)).when(apiKeyRepository).findByUsername(apiKey.getUsername());    	
     	
     	apiKeyService.disableKey(apiKey.getUsername());    	
     	ApiKey key = apiKeyService.getKeyByUserName(apiKey.getUsername());
@@ -140,7 +139,6 @@ public class ApiKeyServiceTest {
     @DisplayName("Test enable api key")
     public void testEnableApiKey() {
     	doReturn(Optional.of(apiKey)).when(apiKeyRepository).findByUsername(apiKey.getUsername());
-    	doReturn(Optional.of(apiKey)).when(apiKeyRepository).findByUsernameAndApiScopeAndActive(apiKey.getUsername(), apiKey.getApiScope(), true);
     	
     	apiKeyService.enableKey(apiKey.getUsername());    	
     	ApiKey key = apiKeyService.getKeyByUserName(apiKey.getUsername());
