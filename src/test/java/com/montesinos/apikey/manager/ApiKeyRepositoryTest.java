@@ -1,4 +1,4 @@
-package com.montesinos.securedbyheadertoken.server;
+package com.montesinos.apikey.manager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -14,8 +14,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.montesinos.securedbyheadertoken.server.dao.ApiKeyRepository;
-import com.montesinos.securedbyheadertoken.server.domain.ApiKey;
+import com.montesinos.apikey.manager.dao.ApiKeyRepository;
+import com.montesinos.apikey.manager.domain.ApiKey;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest

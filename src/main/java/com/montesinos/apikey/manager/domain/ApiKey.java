@@ -1,4 +1,4 @@
-package com.montesinos.securedbyheadertoken.server.domain;
+package com.montesinos.apikey.manager.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,7 +17,7 @@ public class ApiKey {
 	@Column(name="id")
 	private int id;
 	
-	@Column(name="user_name")
+	@Column(name="user_name", unique=true)	
 	private String username;
 	
 	@Transient	
@@ -44,22 +44,21 @@ public class ApiKey {
 	 * @param hashedUuid
 	 * @param active
 	 */
-	public ApiKey(String uuid, String hashedUuid, boolean active) {
+	public ApiKey(String scope, String userName, String uuid, boolean active) {
 		super();
-		this.uuid = uuid;
-		this.hashedUuid = hashedUuid;
+		this.apiScope = scope;
+		this.username = userName;
+		this.uuid = uuid;		
 		this.active = active;
 	}
-
+	
 	/**
-	 * @param username
 	 * @param uuid
 	 * @param hashedUuid
 	 * @param active
 	 */
-	public ApiKey(String username, String uuid, String hashedUuid, boolean active) {
+	public ApiKey(String uuid, String hashedUuid, boolean active) {
 		super();
-		this.username = username;
 		this.uuid = uuid;
 		this.hashedUuid = hashedUuid;
 		this.active = active;

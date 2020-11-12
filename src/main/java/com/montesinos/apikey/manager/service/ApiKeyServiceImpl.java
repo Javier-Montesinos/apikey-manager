@@ -1,4 +1,4 @@
-package com.montesinos.securedbyheadertoken.server.service;
+package com.montesinos.apikey.manager.service;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,9 +13,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.montesinos.securedbyheadertoken.server.dao.ApiKeyRepository;
-import com.montesinos.securedbyheadertoken.server.domain.ApiKey;
-import com.montesinos.securedbyheadertoken.server.rest.ApiKeyNotFoundException;
+import com.montesinos.apikey.manager.dao.ApiKeyRepository;
+import com.montesinos.apikey.manager.domain.ApiKey;
+import com.montesinos.apikey.manager.rest.ApiKeyExistsException;
+import com.montesinos.apikey.manager.rest.ApiKeyNotFoundException;
 
 @Service
 public class ApiKeyServiceImpl implements ApiKeyService {	
@@ -51,26 +52,29 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 	
 	@PostConstruct
 	private void loadData() {		
-		Optional<ApiKey> apis = this.apiKeyRepository.findByUsername(this.apiKeyTestUsername);
-		if(apiKeyTestEnable && !apis.isPresent()) {
+		Optional<ApiKey> key = this.apiKeyRepository.findByUsername(this.apiKeyTestUsername);
+		if(apiKeyTestEnable && !key.isPresent()) {
 			newKey(this.apiKeyTestApiScope, this.apiKeyTestUsername, this.apiKeyTestUuid);
 		}
 		
-		Optional<ApiKey> apis2 = this.apiKeyRepository.findByUsername(this.apiKeyTestUsername2);
-		if(apiKeyTestEnable && !apis2.isPresent()) {
+		Optional<ApiKey> key2 = this.apiKeyRepository.findByUsername(this.apiKeyTestUsername2);
+		if(apiKeyTestEnable && !key2.isPresent()) {
 			newKey(this.apiKeyTestApiScope2, this.apiKeyTestUsername2, this.apiKeyTestUuid2);
 		}
 	}
 	
 	public ApiKey newKey(String apiScope, String userName, String uuid) {
-		String hashedPwd = bcryptPasswordEncoder.encode(uuid);
-		ApiKey key = new ApiKey(userName, uuid, hashedPwd, true);
-		LOG.info("Key generated: {}", key);
-		
-		key.setUuid(null);
-		key.setApiScope(apiScope);		
-		
+		Optional<ApiKey> existsKey = this.apiKeyRepository.findByUsername(userName);
+		if(existsKey.isPresent()) {
+			throw new ApiKeyExistsException("Username exists");
+		} 
+		ApiKey key = new ApiKey(apiScope, userName, uuid, true);
+		String hashedPwd = bcryptPasswordEncoder.encode(uuid);		
+		key.setHashedUuid(hashedPwd);
+						
 		this.apiKeyRepository.save(key);
+		
+		LOG.info("Key saved: {}", key);
 	
 		return key;
 	}

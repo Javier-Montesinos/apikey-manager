@@ -33,7 +33,7 @@ COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
 COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
 
 # se añade información para hacer debug
-ENTRYPOINT ["java", "-noverify", "-XX:TieredStopAtLevel=1", "-cp","app:app/lib/*","-Dspring.main.lazy-initialization=true","com.montesinos.securedbyheadertoken.server.RestApiSecuredByHeaderApiKeyKeysManagerApplication"]
+ENTRYPOINT ["java", "-noverify", "-XX:TieredStopAtLevel=1", "-cp","app:app/lib/*","-Dspring.main.lazy-initialization=true","com.montesinos.apikey.manager.RestApiSecuredByHeaderApiKeyKeysManagerApplication"]
 
 # ENTRYPOINT 
 # ["java", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap", 

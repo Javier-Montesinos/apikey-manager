@@ -1,4 +1,4 @@
-package com.montesinos.securedbyheadertoken.server.rest;
+package com.montesinos.apikey.manager.rest;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,8 +1,8 @@
-package com.montesinos.securedbyheadertoken.server.service;
+package com.montesinos.apikey.manager.service;
 
 import java.util.List;
 
-import com.montesinos.securedbyheadertoken.server.domain.ApiKey;
+import com.montesinos.apikey.manager.domain.ApiKey;
 
 public interface ApiKeyService {
 

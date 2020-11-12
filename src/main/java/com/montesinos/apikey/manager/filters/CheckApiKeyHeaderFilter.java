@@ -1,4 +1,4 @@
-package com.montesinos.securedbyheadertoken.server.filters;
+package com.montesinos.apikey.manager.filters;
 
 import java.io.IOException;
 
@@ -19,7 +19,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import com.montesinos.securedbyheadertoken.server.service.ApiKeyServiceImpl;
+import com.montesinos.apikey.manager.service.ApiKeyServiceImpl;
 
 @Component
 @Order(1)

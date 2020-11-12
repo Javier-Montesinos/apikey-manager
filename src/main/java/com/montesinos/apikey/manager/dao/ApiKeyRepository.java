@@ -1,10 +1,10 @@
-package com.montesinos.securedbyheadertoken.server.dao;
+package com.montesinos.apikey.manager.dao;
 
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.montesinos.securedbyheadertoken.server.domain.ApiKey;
+import com.montesinos.apikey.manager.domain.ApiKey;
 
 public interface ApiKeyRepository extends JpaRepository<ApiKey, String> {
 

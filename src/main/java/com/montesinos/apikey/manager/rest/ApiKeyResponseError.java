@@ -1,4 +1,4 @@
-package com.montesinos.securedbyheadertoken.server.rest;
+package com.montesinos.apikey.manager.rest;
 
 public class ApiKeyResponseError {
 

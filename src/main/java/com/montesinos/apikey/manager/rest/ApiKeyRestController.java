@@ -1,4 +1,4 @@
-package com.montesinos.securedbyheadertoken.server.rest;
+package com.montesinos.apikey.manager.rest;
 
 import java.util.List;
 
@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.montesinos.securedbyheadertoken.server.domain.ApiKey;
-import com.montesinos.securedbyheadertoken.server.service.ApiKeyService;
+import com.montesinos.apikey.manager.domain.ApiKey;
+import com.montesinos.apikey.manager.service.ApiKeyService;
 
 /**
  * Clase para el manejo de key para apis rest
